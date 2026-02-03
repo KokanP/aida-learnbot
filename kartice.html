@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="sl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aida Learnbot - Slovenščina</title>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #1e293b;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+        header {
+            background-color: var(--primary);
+            color: white;
+            width: 100%;
+            padding: 1rem 0;
+            text-align: center;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        h1 { margin: 0; font-size: 1.5rem; }
+        .container {
+            max-width: 800px;
+            width: 90%;
+            margin-top: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        button {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            background-color: white;
+            color: var(--primary);
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            transition: all 0.2s;
+            border: 2px solid var(--primary);
+        }
+        button:hover {
+            background-color: var(--primary);
+            color: white;
+        }
+        button.active {
+            background-color: var(--primary);
+            color: white;
+        }
+        .card-container {
+            perspective: 1000px;
+            height: 400px; /* Increased height for longer answers */
+            cursor: pointer;
+        }
+        .card {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            border-radius: 1rem;
+        }
+        .card.flipped {
+            transform: rotateY(180deg);
+        }
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            box-sizing: border-box;
+            background-color: var(--card-bg);
+            border-radius: 1rem;
+            overflow-y: auto;
+        }
+        .card-back {
+            background-color: #e0e7ff;
+            transform: rotateY(180deg);
+            align-items: flex-start; /* Align text to top for readability */
+            justify-content: flex-start;
+            text-align: left;
+        }
+        .question-text { font-size: 1.3rem; font-weight: bold; }
+        .answer-text { font-size: 1.1rem; line-height: 1.6; white-space: pre-wrap; width: 100%; }
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .progress { font-weight: bold; color: var(--primary-dark); }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+
+<header>
+    <div style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%);">
+        <a href="index.html" style="color: white; text-decoration: none; font-weight: bold; font-size: 1.2rem;">&#8592;</a>
+    </div>
+    <h1>Aida Learnbot - Slovenščina (v1.1 + Biblija)</h1>
+</header>
+
+<div class="container">
+    <div class="controls">
+        <button onclick="setCategory('grska')" class="active" id="btn-grska">Grška Antika</button>
+        <button onclick="setCategory('ljudsko')" id="btn-ljudsko">Ljudsko & Orient</button>
+        <button onclick="setCategory('biblija')" id="btn-biblija">Biblija</button>
+        <button onclick="setCategory('vse')" id="btn-vse">Vse skupaj</button>
+    </div>
+
+    <div class="card-container" onclick="flipCard()">
+        <div class="card" id="flashcard">
+            <div class="card-face card-front">
+                <div class="question-text" id="question">Nalaganje...</div>
+                <p style="margin-top: 20px; color: #666; font-size: 0.9rem;">(Klikni za odgovor)</p>
+            </div>
+            <div class="card-face card-back">
+                <div class="answer-text" id="answer">...</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="navigation">
+        <button onclick="prevCard()">&#8592; Nazaj</button>
+        <span class="progress" id="progress">1 / 97</span>
+        <button onclick="nextCard()">Naprej &#8594;</button>
+    </div>
+    
+    <div style="text-align: center;">
+        <button onclick="shuffleCards()">🔀 Premešaj kartice</button>
+    </div>
+</div>
+
+<script>
+    // DATA: GRSKA ANTIKA (Iz VPRAŠANJA ZA PONAVLJANJE + TEST A)
+    const dataGrska = [
+        { q: "Kateri dve književnosti obsega antična književnost?", a: "Grško in rimsko književnost." },
+        { q: "Od kdaj do kdaj je nastajala antična književnost?", a: "Od približno 1000 pr. n. št. (ali 8. st. pr. n. št. - Homer) do propada Zahodnega rimskega cesarstva leta 476 n. št." },
+        { q: "Zakaj Staro Grčijo imenujemo tudi zibelka naše civilizacije?", a: "Ker so se tam razvile osnove evropske kulture, znanosti, filozofije, demokracije in umetnosti (vključno z vsemi glavnimi književnimi vrstami)." },
+        { q: "Katere literarne zvrsti so se razvile v antični književnosti?", a: "Epika, lirika in dramatika." },
+        { q: "Na katera obdobja delimo grško književnost?", a: "1. Arhaično obdobje (8. – 5. stol. pr. n. št.)\n2. Klasično (atiško) obdobje (5. – 4. stol. pr. n. št.)\n3. Helenistično obdobje (4. stol. pr. n. št. – 5. stol. n. št.)" },
+        { q: "Kateri zvrsti se predvsem razvijeta v prvem obdobju grške književnosti in kateri je njen najpomembnejši predstavnik?", a: "Razvijeta se epika (junaški ep) in kasneje lirika. Najpomembnejši predstavnik je Homer." },
+        { q: "Katera literarna zvrst se predvsem razvije v drugem obdobju grške književnosti?", a: "Dramatika (zlasti tragedija)." },
+        { q: "Kateri so najpomembnejši pisci drugega (klasičnega) obdobja?", a: "Tragičarji: Ajshil, Sofokles, Evripid.\nKomediograf: Aristofan." },
+        { q: "Katere vrste se razvijejo v zadnjem (helenističnem) obdobju grške književnosti?", a: "Novi roman (grški roman), komedija nravi, epigram." },
+        { q: "Kaj je ep?", a: "Obsežna pripovedna pesnitev v verzih, ki pripoveduje o junaških dejanjih, bogovih ali pomembnih zgodovinskih dogodkih." },
+        { q: "Zakaj je grška književnost pomembna za evropsko in tudi slovensko književnost?", a: "Ker je postavila temelje za vse književne zvrsti in vrste, na katere so se kasneje naslanjala obdobja kot so renesansa, klasicizem in romantika (tudi Prešeren in Čop)." },
+        { q: "Zapiši dva predstavnika dramatike v obdobju grške književnosti.", a: "Sofokles, Ajshil (ali Evripid, Aristofan)." },
+        { q: "Zapiši dva predstavnika epike v obdobju grške književnosti.", a: "Homer, Heziod." },
+        { q: "Zapiši dva predstavnika lirike v obdobju grške književnosti.", a: "Sapfo, Anakreon (ali Pindar)." },
+        { q: "Kakšna je zgradba drame Kralj Ojdip? Kaj to pomeni?", a: "Analitična zgradba. To pomeni, da se drama začne tik pred končnim razpletom, pretekli dogodki (ki so vzrok za tragično stanje) pa se razkrivajo postopoma skozi dialoge." },
+        { q: "Na čem temelji zgradba tragedije Kralj Ojdip?", a: "Na dramskem trikotniku." },
+        { q: "Kaj je peripetija oz. preobrat?", a: "To je del dramskega trikotnika, kjer se dogajanje nepričakovano obrne v nasprotno smer (običajno v katastrofo). Pri Ojdipu je to trenutek, ko pastir razkrije resnico." },
+        { q: "Kaj so zaviralni momenti oz. dogodki?", a: "Dogodki, ki za trenutek odložijo razplet in povečajo napetost (npr. ko Ojdip misli, da ni ubil očeta, ker je Polib umrl naravne smrti)." },
+        { q: "Kaj je zasnova drame Kralj Ojdip?", a: "Kuga v Tebah, Ojdip obljubi iskanje morilca." },
+        { q: "Kaj je zaplet drame Kralj Ojdip?", a: "Ojdipov spor s Tejreziasom in Kreonom." },
+        { q: "Kaj je vrh drame Kralj Ojdip?", a: "Ojdip začne sumiti sebe; prihod sla iz Korinta." },
+        { q: "Kaj je razplet (preobrat) drame Kralj Ojdip?", a: "Pastir potrdi, da je Ojdip Lajev sin." },
+        { q: "Kaj je razsnova (katastrofa) drame Kralj Ojdip?", a: "Jokasta se obesi, Ojdip se oslepi in izžene." },
+        { q: "Kaj je na splošno vrh tragedije?", a: "To je trenutek največje napetosti, ko se konflikt najbolj zaostri in je odločitev neizogibna." },
+        { q: "Kdo je Ojdipov protijunak?", a: "Kreon (zastopa zakon in red). V širšem smislu tudi Usoda." },
+        { q: "Kaj velja za načelo trojne enotnosti?", a: "Enotnost kraja (eno mesto), časa (en dan) in dejanja (ena zgodba)." },
+        { q: "Katere vloge ima zbor v grški tragediji?", a: "Komentira dogajanje, povezuje prizore, pojasnjuje preteklost, izraža splošno mnenje (glas ljudstva), svari junake." },
+        { q: "Kdaj na splošno govorimo o tragičnosti?", a: "Ko junak propade kljub svojemu prizadevanju in plemenitosti zaradi višjih sil (usode), ki jih ne more premagati." },
+        { q: "Kaj pomeni, da je kralj Ojdip kriv brez krivde?", a: "Pomeni, da je storil grozljiva dejanja (ubil očeta, se poročil z materjo) nevede. Ni imel slabih namenov, zato je subjektivno nedolžen, a objektivno kriv." },
+        { q: "Kaj pomeni, da ob delu doživimo katarzo?", a: "To je občutek, ki ga doživi gledalec ob koncu tragedije: zmes sočutja in groze, ki vodi v notranjo pomiritev in moralno očiščenje." },
+        { q: "Kakšne oblike so bila grška gledališča?", a: "Polkrožne oblike (amfiteater), zgrajena na pobočju hriba." },
+        { q: "Kdaj so potekala dramska tekmovanja v Stari Grčiji?", a: "Spomladi, v času Velikih Dionizij." },
+        { q: "S kakšno tetralogijo so nastopali dramatiki?", a: "Z tremi tragedijami (trilogija) in eno satirsko igro." },
+        { q: "Kdo je igral vloge v gledališču?", a: "Samo moški (tudi ženske vloge)." },
+        { q: "Kdo je uvedel prvega, drugega in tretjega igralca?", a: "1. Tespis\n2. Ajshil\n3. Sofokles" },
+        { q: "Kaj so nosili nastopajoči?", a: "Maske (značaj, spol, starost) in koturne (čevlje z debelim podplatom) ter dolga oblačila." },
+        { q: "Naštej dele grškega gledališča.", a: "Theatron (gledalci), Orchestra (zbor), Skene (ozadje), Proskenion (oder)." },
+        { q: "Kaj je osnova za razvoj dramatike?", a: "Obredi v čast bogu Dionizu (ditirambi)." },
+        { q: "Kdo nastopa v tragediji in kdo v komediji?", a: "Tragedija: mitološki junaki in bogovi (vzvišen slog).\nKomedija: navadni ljudje (nižji slog)." },
+        { q: "Kaj naj bi po Aristotelu vzbujala vsaka drama?", a: "Strah in sočutje (ki vodita v katarzo)." },
+        { q: "Zapiši tri značilnosti antične drame.", a: "Uporaba zbora, maske, verz, trojna enotnost, malo igralcev na odru." },
+        { q: "Kaj so značilnosti antične tragedije?", a: "Tragični junak, tragična krivda, neizogibna usoda, vzvišen slog, katarza." },
+        { q: "Kako delimo grško antično liriko?", a: "Na monodično (samopevno) in zborsko liriko." },
+        { q: "Kaj je značilno za elegije?", a: "Pesmi v elegijskem distihu. Vsebina: vojna, ljubezenska, poučna. Kasneje žalostinka." },
+        { q: "Kaj je značilno za melično pesništvo?", a: "Namenjeno petju ob liri. Osebno in čustveno." },
+        { q: "Kaj je značilno za zborsko liriko?", a: "Izvaja jo zbor s petjem in plesom, je bolj javna, slavnostna (npr. himne)." },
+        { q: "Kdo je največja antična pesnica? Kaj vemo o njej?", a: "Sapfo (iz otoka Lezbos). Vodila šolo za dekleta, pisala o ljubezni in lepoti." },
+        { q: "Kaj je 'pedagoški eros' pri Sapfo?", a: "Globoka čustvena naklonjenost do učenk, ki je bila v tistem času družbeno sprejemljiva." },
+        { q: "Katera Sapfina pesem je ohranjena v celoti?", a: "Hvalnica Afroditi." },
+        { q: "O čem govorijo Sapfine pesmi?", a: "O ljubezni, lepoti, naravi, prijateljstvu, Afroditi." },
+        { q: "Kako se imenuje kitica, ki je poimenovana po Sapfo?", a: "Sapfična kitica." },
+        { q: "Kaj je značilno za svatovske pesmi?", a: "Pojejo se ob porokah. Slavijo ženina in nevesto, včasih so šaljive ali žalostne ob slovesu." },
+        { q: "Predstavi pesnika Anakreona.", a: "Pesnik uživanja (anakreontika). Slavi vino, ljubezen, zabavo, brezskrbnost." },
+        { q: "Primerjaj Sapfo in Anakreona glede ljubezni.", a: "Sapfo: resna, globoka, tragična.\nAnakreon: lahkotna, igriva, zabavna." },
+        { q: "Povzemi mit o trojanski vojni.", a: "Spor boginj za jabolko -> Paris ugrabi Heleno -> Grki napadejo Trojo -> 10 let vojne -> Trojanski konj." },
+        { q: "Kaj je Odiseja glede na vrsto?", a: "Junaško-pustolovski ep." },
+        { q: "Ali v drami Kralj Ojdip nastopa zbor?", a: "DA." },
+        { q: "Ali je kralj Laj Ojdipov biološki oče?", a: "DA." },
+        { q: "Ali Ojdip postane slep?", a: "DA (oslepi se sam)." },
+        { q: "Kdo je rešil Sfingino uganko?", a: "Ojdip." },
+        { q: "Ali Jokasta verjame prerokbam?", a: "Na začetku ne (ker misli, da je njen sin umrl), kasneje pa spozna resnico." },
+        { q: "V kakšnem sorodstvu sta Ojdip in Kreon?", a: "Kreon je Ojdipov stric (brat njegove matere) in hkrati svak." },
+        { q: "Kdo je slepi prerok v drami Kralj Ojdip?", a: "Tejrezias." }
+    ];
+
+    // DATA: BIBLIJA
+    const dataBiblija = [
+        { q: "Kaj je značilno za starožidovsko književnost?", a: "Monoteizem, Biblija (Stara zaveza)." },
+        { q: "Kako delimo Biblijo?", a: "Stara zaveza (judovska) in Nova zaveza (krščanska)." },
+        { q: "Kateri so pomembni prevodi Biblije?", a: "Septuaginta (grški), Vulgata (latinski), Dalmatinov prevod (slovenski)." },
+        { q: "Kje najdemo Priliko o izgubljenem sinu?", a: "V Novi zavezi (Lukov evangelij)." },
+        { q: "Kdo govori Priliko o izgubljenem sinu in komu?", a: "Jezus. Govori jo farizejem, ki so ga kritizirali zaradi druženja z grešniki." },
+        { q: "Koga simbolizira oče v priliki?", a: "Boga (ki je usmiljen)." },
+        { q: "Koga simbolizira mlajši sin?", a: "Grešnika, ki se pokesa." },
+        { q: "Koga simbolizira starejši sin?", a: "Samopravičnega vernika, ki je zavisten in ne razume usmiljenja." },
+        { q: "Kaj je sporočilo Prilike o izgubljenem sinu?", a: "Bog odpušča vsakomur, ki se iskreno pokesa." },
+        { q: "Naštej glavne dele Stare zaveze.", a: "Zgodovinske, Modrostne in Preroške knjige (ter Pentatevh/Postava)." },
+        { q: "O čem govori Stara zaveza?", a: "O ustvarjenju sveta in zgodovini izraelskega ljudstva (zaveza z Bogom)." },
+        { q: "Naštej glavne dele Nove zaveze.", a: "Evangeliji, Apostolska dela, Pisma, Razodetje." },
+        { q: "O čem govori Nova zaveza?", a: "O življenju in nauku Jezusa Kristusa ter začetkih krščanstva." },
+        { q: "Koliko knjig ima Stara in koliko Nova zaveza?", a: "Stara zaveza: 46 (judovska).\nNova zaveza: 27." }
+    ];
+
+    // DATA: LJUDSKO SLOVSTVO IN ORIENT (BREZ BIBLIJE)
+    const dataLjudsko = [
+        { q: "Kaj so glavne značilnosti ljudskega slovstva?", a: "Neznan avtor, ustno izročilo, variante, narečni jezik, preprosta oblika." },
+        { q: "Naštej ljudska števila.", a: "3, 7, 9, 12." },
+        { q: "Katere literarne vrste so prisotne v ljudskem slovstvu?", a: "Lirika, Epika, Pripovedništvo, (Dramatika)." },
+        { q: "Katere so prepoznavne slogovne značilnosti ljudskega slovstva?", a: "Ponavljanja (refren), ljudska števila, okrasni pridevki (lepa Vida), pomanjševalnice, pretiravanja." },
+        { q: "Kateri so bili prvi zapisovalci ljudskega slovstva pri nas?", a: "Trubar, Valvasor, Zois, Vodnik (kasneje Štrekelj)." },
+        { q: "Katera institucija danes zbira ljudske pesmi?", a: "Glasbenonarodopisni inštitut ZRC SAZU." },
+        { q: "Kaj je snov pripovedke o Petru Klepcu?", a: "Življenje revnega, šibkega pastirja, ki pridobi nadnaravno moč." },
+        { q: "Kaj sta osrednja motiva pripovedke o Petru Klepcu?", a: "Motiv čudežne moči (voda) in motiv pravičnega maščevanja." },
+        { q: "Kateri sta dve varianti Petra Klepca?", a: "Vaška (obračun s pastirji) in Nacionalna (boj proti Turkom)." },
+        { q: "Kaj je značilno za žensko balado?", a: "Glavna oseba je ženska, tema je trpljenje/družina, vzdušje je žalostno, a manj krvavo kot pri moških baladah." },
+        { q: "Kaj je značilno za balado na splošno?", a: "Srednje dolga pesem, napeta zgodba, mračno vzdušje, tragičen konec, nadnaravne sile." },
+        { q: "Kateri so glavni motivi v pesmi Od lepe Vide?", a: "Motiv nezadovoljne žene, motiv ugrabitve (Črnec), motiv hrepenenja po domu/otroku, tragična usoda." },
+        { q: "Katere so variante pesmi o Lepi Vidi?", a: "1. Vida umre (starejša)\n2. Vida se vrne (mlajša)\n3. Vida ostane sužnja" },
+        { q: "Kako je Lepa Vida vplivala na slovensko umetnost?", a: "Postala je simbol (mit) slovenskega hrepenenja in trpljenja (Prešeren, Cankar...)." },
+        { q: "Simbol česa je Riba Faronika?", a: "Simbol apokalipse (konca sveta) in kaosa. Če migne z repom, potopi svet." },
+        { q: "Iz pesmi Riba faronika izpiši stilne figure značilne za ljudsko slovstvo.", a: "Pomanjševalnice (ribica), okrasni pridevki (široko morje)." },
+        { q: "Kaj je tema in motiv pesmi 'Trgaj mi rožice'?", a: "Tema: Ljubezenska (vabilo fanta).\nMotiv: Rožice/pušeljc kot simbol ljubezni." },
+        { q: "Iz katerega časa izvirajo orientalske književnosti?", a: "Najstarejše iz 3. tisočletja pr. n. št." },
+        { q: "Katera je najstarejša orientalska književnost?", a: "Sumerska (in Egipčanska), cca 3000 pr. n. št." },
+        { q: "Katere so glavne značilnosti egipčanske književnosti?", a: "Hieroglifi, Himne soncu, Knjiga mrtvih, delovne pesmi." },
+        { q: "Kaj je Ep o Gilgamešu?", a: "Sumersko-babilonski ep o iskanju nesmrtnosti. Najstarejša junaška pesnitev." },
+        { q: "Kaj je značilno za perzijsko književnost?", a: "Bogata lirika (gazele), pesniki Hafis, Omar Hajam." },
+        { q: "Kaj je značilno za indijsko književnost?", a: "Svete knjige Vede, epa Mahabharata in Ramajana, misticizem." },
+        { q: "Kaj je značilno za arabsko književnost?", a: "Koran, Tisoč in ena noč (Šeherezada)." },
+        { q: "Kaj je značilno za kitajsko književnost?", a: "Filozofija (Konfucij), lirika, spoštovanje tradicije." },
+        { q: "Kaj je značilno za japonsko književnost?", a: "Minimalizem, haiku (5-7-5 zlogov), povezanost z naravo." },
+        { q: "Katera književnost je najmlajša med orientalskimi?", a: "Arabska in Japonska (srednji vek)." },
+        { q: "Kaj je haiku?", a: "Japonska pesniška oblika: 3 verzi, 5-7-5 zlogov, tema je narava/trenutek." }
+    ];
+
+    let currentData = [];
+    let currentIndex = 0;
+
+    function setCategory(cat) {
+        // Reset buttons
+        document.querySelectorAll('.controls button').forEach(b => b.classList.remove('active'));
+        document.getElementById('btn-' + cat).classList.add('active');
+
+        // Set data
+        if (cat === 'grska') currentData = [...dataGrska];
+        else if (cat === 'ljudsko') currentData = [...dataLjudsko];
+        else if (cat === 'biblija') currentData = [...dataBiblija];
+        else currentData = [...dataGrska, ...dataLjudsko, ...dataBiblija];
+
+        shuffleCards(); // Auto shuffle on category change
+    }
+
+    function shuffleCards() {
+        for (let i = currentData.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [currentData[i], currentData[j]] = [currentData[j], currentData[i]];
+        }
+        currentIndex = 0;
+        loadCard();
+    }
+
+    function loadCard() {
+        const card = document.getElementById('flashcard');
+        card.classList.remove('flipped');
+        
+        setTimeout(() => {
+            const item = currentData[currentIndex];
+            if(item) {
+                document.getElementById('question').innerText = item.q;
+                document.getElementById('answer').innerText = item.a;
+                document.getElementById('progress').innerText = `${currentIndex + 1} / ${currentData.length}`;
+            }
+        }, 200);
+    }
+
+    function flipCard() {
+        document.getElementById('flashcard').classList.toggle('flipped');
+    }
+
+    function nextCard() {
+        if (currentIndex < currentData.length - 1) {
+            currentIndex++;
+            loadCard();
+        }
+    }
+
+    function prevCard() {
+        if (currentIndex > 0) {
+            currentIndex--;
+            loadCard();
+        }
+    }
+
+    // Init
+    setCategory('vse');
+</script>
+
+</body>
+</html>
