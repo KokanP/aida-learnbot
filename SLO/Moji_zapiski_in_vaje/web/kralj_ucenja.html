@@ -125,9 +125,10 @@
 
 <div class="container">
     <div class="controls">
-        <button onclick="setCategory('grska')" class="active" id="btn-grska">Grška Antika (60)</button>
-        <button onclick="setCategory('ljudsko')" id="btn-ljudsko">Ljudsko & Orient (37)</button>
-        <button onclick="setCategory('vse')" id="btn-vse">Vse skupaj (97)</button>
+        <button onclick="setCategory('grska')" class="active" id="btn-grska">Grška Antika</button>
+        <button onclick="setCategory('ljudsko')" id="btn-ljudsko">Ljudsko & Orient</button>
+        <button onclick="setCategory('biblija')" id="btn-biblija">Biblija</button>
+        <button onclick="setCategory('vse')" id="btn-vse">Vse skupaj</button>
     </div>
 
     <div class="card-container" onclick="flipCard()">
@@ -221,7 +222,25 @@
         { q: "Kdo je slepi prerok v drami Kralj Ojdip?", a: "Tejrezias." }
     ];
 
-    // DATA: LJUDSKO SLOVSTVO IN ORIENT (Iz VPRAŠANJA ZA PONAVLJANJE + TEST A)
+    // DATA: BIBLIJA
+    const dataBiblija = [
+        { q: "Kaj je značilno za starožidovsko književnost?", a: "Monoteizem, Biblija (Stara zaveza)." },
+        { q: "Kako delimo Biblijo?", a: "Stara zaveza (judovska) in Nova zaveza (krščanska)." },
+        { q: "Kateri so pomembni prevodi Biblije?", a: "Septuaginta (grški), Vulgata (latinski), Dalmatinov prevod (slovenski)." },
+        { q: "Kje najdemo Priliko o izgubljenem sinu?", a: "V Novi zavezi (Lukov evangelij)." },
+        { q: "Kdo govori Priliko o izgubljenem sinu in komu?", a: "Jezus. Govori jo farizejem, ki so ga kritizirali zaradi druženja z grešniki." },
+        { q: "Koga simbolizira oče v priliki?", a: "Boga (ki je usmiljen)." },
+        { q: "Koga simbolizira mlajši sin?", a: "Grešnika, ki se pokesa." },
+        { q: "Koga simbolizira starejši sin?", a: "Samopravičnega vernika, ki je zavisten in ne razume usmiljenja." },
+        { q: "Kaj je sporočilo Prilike o izgubljenem sinu?", a: "Bog odpušča vsakomur, ki se iskreno pokesa." },
+        { q: "Naštej glavne dele Stare zaveze.", a: "Zgodovinske, Modrostne in Preroške knjige (ter Pentatevh/Postava)." },
+        { q: "O čem govori Stara zaveza?", a: "O ustvarjenju sveta in zgodovini izraelskega ljudstva (zaveza z Bogom)." },
+        { q: "Naštej glavne dele Nove zaveze.", a: "Evangeliji, Apostolska dela, Pisma, Razodetje." },
+        { q: "O čem govori Nova zaveza?", a: "O življenju in nauku Jezusa Kristusa ter začetkih krščanstva." },
+        { q: "Koliko knjig ima Stara in koliko Nova zaveza?", a: "Stara zaveza: 46 (judovska).\nNova zaveza: 27." }
+    ];
+
+    // DATA: LJUDSKO SLOVSTVO IN ORIENT (BREZ BIBLIJE)
     const dataLjudsko = [
         { q: "Kaj so glavne značilnosti ljudskega slovstva?", a: "Neznan avtor, ustno izročilo, variante, narečni jezik, preprosta oblika." },
         { q: "Naštej ljudska števila.", a: "3, 7, 9, 12." },
@@ -244,27 +263,13 @@
         { q: "Katera je najstarejša orientalska književnost?", a: "Sumerska (in Egipčanska), cca 3000 pr. n. št." },
         { q: "Katere so glavne značilnosti egipčanske književnosti?", a: "Hieroglifi, Himne soncu, Knjiga mrtvih, delovne pesmi." },
         { q: "Kaj je Ep o Gilgamešu?", a: "Sumersko-babilonski ep o iskanju nesmrtnosti. Najstarejša junaška pesnitev." },
-        { q: "Kaj je značilno za starožidovsko književnost?", a: "Monoteizem, Biblija (Stara zaveza)." },
         { q: "Kaj je značilno za perzijsko književnost?", a: "Bogata lirika (gazele), pesniki Hafis, Omar Hajam." },
         { q: "Kaj je značilno za indijsko književnost?", a: "Svete knjige Vede, epa Mahabharata in Ramajana, misticizem." },
         { q: "Kaj je značilno za arabsko književnost?", a: "Koran, Tisoč in ena noč (Šeherezada)." },
         { q: "Kaj je značilno za kitajsko književnost?", a: "Filozofija (Konfucij), lirika, spoštovanje tradicije." },
         { q: "Kaj je značilno za japonsko književnost?", a: "Minimalizem, haiku (5-7-5 zlogov), povezanost z naravo." },
-        { q: "Kako delimo Biblijo?", a: "Stara zaveza (judovska) in Nova zaveza (krščanska)." },
-        { q: "Kateri so pomembni prevodi Biblije?", a: "Septuaginta (grški), Vulgata (latinski), Dalmatinov prevod (slovenski)." },
-        { q: "Kje najdemo Priliko o izgubljenem sinu?", a: "V Novi zavezi (Lukov evangelij)." },
-        { q: "Kdo govori Priliko o izgubljenem sinu in komu?", a: "Jezus. Govori jo farizejem, ki so ga kritizirali zaradi druženja z grešniki." },
-        { q: "Koga simbolizira oče v priliki?", a: "Boga (ki je usmiljen)." },
-        { q: "Koga simbolizira mlajši sin?", a: "Grešnika, ki se pokesa." },
-        { q: "Koga simbolizira starejši sin?", a: "Samopravičnega vernika, ki je zavisten in ne razume usmiljenja." },
-        { q: "Kaj je sporočilo Prilike o izgubljenem sinu?", a: "Bog odpušča vsakomur, ki se iskreno pokesa." },
         { q: "Katera književnost je najmlajša med orientalskimi?", a: "Arabska in Japonska (srednji vek)." },
-        { q: "Kaj je haiku?", a: "Japonska pesniška oblika: 3 verzi, 5-7-5 zlogov, tema je narava/trenutek." },
-        { q: "Naštej glavne dele Stare zaveze.", a: "Zgodovinske, Modrostne in Preroške knjige (ter Pentatevh/Postava)." },
-        { q: "O čem govori Stara zaveza?", a: "O ustvarjenju sveta in zgodovini izraelskega ljudstva (zaveza z Bogom)." },
-        { q: "Naštej glavne dele Nove zaveze.", a: "Evangeliji, Apostolska dela, Pisma, Razodetje." },
-        { q: "O čem govori Nova zaveza?", a: "O življenju in nauku Jezusa Kristusa ter začetkih krščanstva." },
-        { q: "Koliko knjig ima Stara in koliko Nova zaveza?", a: "Stara zaveza: 46 (judovska).\nNova zaveza: 27." }
+        { q: "Kaj je haiku?", a: "Japonska pesniška oblika: 3 verzi, 5-7-5 zlogov, tema je narava/trenutek." }
     ];
 
     let currentData = [];
@@ -278,7 +283,8 @@
         // Set data
         if (cat === 'grska') currentData = [...dataGrska];
         else if (cat === 'ljudsko') currentData = [...dataLjudsko];
-        else currentData = [...dataGrska, ...dataLjudsko];
+        else if (cat === 'biblija') currentData = [...dataBiblija];
+        else currentData = [...dataGrska, ...dataLjudsko, ...dataBiblija];
 
         shuffleCards(); // Auto shuffle on category change
     }
